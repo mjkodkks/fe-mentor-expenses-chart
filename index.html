@@ -49,7 +49,7 @@
       </div>
     </div>
     <div class="bg-paleOrange p-8 mt-4">
-      <div class="text-3xl">Spending - Last 7 days</div>
+      <div class="text-3xl text-darkBrown">Spending - Last 7 days</div>
       <div>
         <canvas id="chart"></canvas>
       </div>
@@ -57,9 +57,9 @@
       <div>
         <div class="text-sm text-slate-500">Total this month</div>
         <div class="flex justify-between">
-          <div class="text-5xl">$478.33</div>
+          <div class="text-5xl text-darkBrown">$478.33</div>
           <div>
-            <div class="text-right font-bold">+2.4%</div>
+            <div class="text-right font-bold text-darkBrown">+2.4%</div>
             <div class="text-right text-slate-500">from last month</div>
           </div>
         </div>
@@ -86,17 +86,16 @@
         const templateData = {
           labels: labels,
           datasets: [{
-            label: 'My First Dataset',
             data: amount,
             backgroundColor: (ctx) => {
-              console.log(ctx);
               if (ctx.dataIndex === activeToday) {
                 return 'hsl(186, 34%, 60%)';
               }
               return 'hsl(10, 79%, 65%)';
             },
             hoverBackgroundColor: ['hsl(10, 79%, 80%)'],
-            borderWidth: 0
+            borderWidth: 0,
+            borderRadius: 5,
           }]
         };
 
@@ -127,10 +126,10 @@
                 xAlign: 'center',
                 usePointStyle: false,
                 displayColors: false,
+                backgroundColor: 'hsl(25, 47%, 15%)',
                 callbacks: {
                     label: function(context) {
-                        let label = context.raw || '';
-                        console.log(context);
+                        let label = '$' + context.raw || '';
                         return label;
                     },
                     title: function() {
