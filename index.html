@@ -70,30 +70,36 @@
 
   <script>
     const ctx = document.getElementById('chart');
-    function init() {
 
+    function getToday() {
+      const options = { weekday: 'short' };
+      const day = new Date().toLocaleDateString('en-US', options);
+      return day.toLowerCase()
     }
     // Load the JSON data
     fetch('data.json')
       .then(response => response.json())
       .then(res => {
-        // Create HTML elements to display the data
-        console.log(res)
         const labels = [...res.map(m => m.day)];
         const amount = [...res.map(m => m.amount)];
+        const activeToday = res.findIndex(f => getToday() === f.day)
         const templateData = {
           labels: labels,
           datasets: [{
             label: 'My First Dataset',
             data: amount,
-            backgroundColor: [
-              'hsl(10, 79%, 65%)',
-            ],
-            hoverBackgroundColor: ['hsl(186, 34%, 60%)'],
+            backgroundColor: (ctx) => {
+              console.log(ctx);
+              if (ctx.dataIndex === activeToday) {
+                return 'hsl(186, 34%, 60%)';
+              }
+              return 'hsl(10, 79%, 65%)';
+            },
+            hoverBackgroundColor: ['hsl(10, 79%, 80%)'],
             borderWidth: 0
           }]
         };
-        console.log(ctx);
+
         new Chart(ctx, {
           type: 'bar',
           data: templateData,
