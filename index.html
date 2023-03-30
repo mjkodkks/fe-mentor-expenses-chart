@@ -9,6 +9,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
 
   <title>Frontend Mentor | Expenses chart component</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js" defer async></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -29,12 +32,15 @@
   </script>
   <style>
     html {
-    min-height: 100%;
+      min-height: 100%;
     }
+
     body {
       background-color: hsl(27, 66%, 92%);
       font-size: 18px;
       height: 100vh;
+      padding: 0 1rem;
+      font-family: 'Roboto', sans-serif;
     }
   </style>
 </head>
@@ -42,25 +48,25 @@
 <body>
   <main class="max-w-[600px] mx-auto h-full flex flex-col justify-center">
     <div class="bg-softRed p-8 text-white relative rounded-2xl">
-      <div class="text-sm">My balance</div>
+      <div class="text-base font-light">My balance</div>
       <div class="text-3xl">$921.48</div>
       <div class="h-full absolute right-8 top-0 flex items-center">
         <img src="./images/logo.svg" alt="logo">
       </div>
     </div>
     <div class="bg-paleOrange p-8 mt-4 rounded-2xl">
-      <div class="text-3xl text-darkBrown">Spending - Last 7 days</div>
-      <div>
+      <div class="text-2xl md:text-3xl text-darkBrown font-bold">Spending - Last 7 days</div>
+      <div class="mt-8">
         <canvas id="chart"></canvas>
       </div>
       <hr class="my-4" />
       <div>
-        <div class="text-sm text-slate-500">Total this month</div>
-        <div class="flex justify-between">
-          <div class="text-5xl text-darkBrown">$478.33</div>
+        <div class="text-sm text-darkBrown font-light">Total this month</div>
+        <div class="flex justify-between items-center">
+          <div class="text-3xl md:text-5xl text-darkBrown font-bold">$478.33</div>
           <div>
             <div class="text-right font-bold text-darkBrown">+2.4%</div>
-            <div class="text-right text-slate-500">from last month</div>
+            <div class="text-right text-darkBrown font-light">from last month</div>
           </div>
         </div>
       </div>
@@ -69,6 +75,7 @@
   </main>
 
   <script>
+    // init chart canvas use with chartjs
     const ctx = document.getElementById('chart');
 
     function getToday() {
@@ -76,10 +83,12 @@
       const day = new Date().toLocaleDateString('en-US', options);
       return day.toLowerCase()
     }
-    // Load the JSON data
-    fetch('data.json')
-      .then(response => response.json())
-      .then(res => {
+
+    async function loadJsonData() {
+      // Load the JSON data
+      try {
+        const response = await fetch('data.json')
+        const res = await response.json()
         const labels = [...res.map(m => m.day)];
         const amount = [...res.map(m => m.amount)];
         const activeToday = res.findIndex(f => getToday() === f.day)
@@ -98,51 +107,65 @@
             borderRadius: 5,
           }]
         };
+        return templateData
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        return null
+      }
+    }
 
-        new Chart(ctx, {
-          type: 'bar',
-          data: templateData,
-          options: {
-            scales: {
-              y: {
-                display: false,
-                grid: {
-                  drawOnChartArea: false
-                }
-              },
-              x: {
-                display: true,
-                grid: {
-                  drawOnChartArea: false
-                }
-              },
+    function initChart(contextElemnt, templateData) {
+      new Chart(ctx, {
+        type: 'bar',
+        data: templateData,
+        options: {
+          scales: {
+            y: {
+              display: false,
             },
-            plugins: {
-              legend: {
+            x: {
+              border: {
                 display: false
               },
-              tooltip: {
-                yAlign: 'bottom',
-                xAlign: 'center',
-                usePointStyle: false,
-                displayColors: false,
-                backgroundColor: 'hsl(25, 47%, 15%)',
-                callbacks: {
-                    label: function(context) {
-                        let label = '$' + context.raw || '';
-                        return label;
-                    },
-                    title: function() {
-                      return ''
-                    }
+              grid: {
+                drawOnChartArea: false,
+                drawTicks: false,
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              yAlign: 'bottom',
+              xAlign: 'center',
+              usePointStyle: false,
+              displayColors: false,
+              backgroundColor: 'hsl(25, 47%, 15%)',
+              callbacks: {
+                label: function (context) {
+                  let label = '$' + context.raw || '';
+                  return label;
+                },
+                title: function () {
+                  return ''
                 }
               }
             }
           }
-        })
-
+        }
       })
-      .catch(error => console.error(error));
+    }
+
+    async function init() {
+      const templateData = await loadJsonData()
+      if (templateData) {
+        initChart(ctx, templateData)
+      }
+    }
+
+    init()
 
   </script>
 </body>
